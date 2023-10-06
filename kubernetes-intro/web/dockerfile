@@ -1,0 +1,21 @@
+FROM nginx:1.25.2
+
+WORKDIR /app
+
+#Change UID
+ARG NGINX_UID=1001
+ARG NGINX_GID=1001
+
+RUN echo '<h1>Hello from minikube</h1>' > /app/homework.html \
+  && usermod -u $NGINX_UID nginx \
+  && groupmod -g $NGINX_GID nginx \
+  && chown -R nginx:nginx /var/cache/nginx /var/log/nginx /etc/nginx/ /app \
+  && touch /var/run/nginx.pid \
+  && chown -R nginx:nginx /var/run/nginx.pid
+
+# switch to non-root user
+USER nginx
+
+COPY ./custom.conf /etc/nginx/conf.d/
+
+EXPOSE 8000
